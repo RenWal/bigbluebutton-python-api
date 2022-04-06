@@ -97,7 +97,10 @@ class BigBlueButton(object):
 
         query = urlencode([(param[0], param[1]) for param in params if param[1] is not None])
         xml = get_xml(self.bbb_api_url, self.salt, call, query, pre_upload_slide, self.timeout)
-        return xml is not None
+        if xml is None:
+            return False
+        create_time = int(xml.find('createTime').text)
+        return create_time
 
     def is_meeting_running(self, meeting_id):
         """
