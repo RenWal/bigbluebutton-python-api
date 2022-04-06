@@ -13,13 +13,14 @@ from bigbluebutton.utils import api_call, get_xml, xml_match
 
 
 class BigBlueButton(object):
-    def __init__(self, bbb_api_url=None, salt=None):
+    def __init__(self, bbb_api_url=None, salt=None, timeout=15):
         """
         :param bbb_api_url: The url to your bigbluebutton instance (including the api/)
         :param salt: The security salt defined for your bigbluebutton instance
         """
         self.bbb_api_url = bbb_api_url
         self.salt = salt
+        self.timeout = timeout
 
     def create_meeting(self, meeting_id, meeting_name='',
                        attendee_password=None, moderator_password=None,
@@ -95,7 +96,7 @@ class BigBlueButton(object):
             params += [(k, v) for k, v in options.items()]
 
         query = urlencode([(param[0], param[1]) for param in params if param[1] is not None])
-        xml = get_xml(self.bbb_api_url, self.salt, call, query, pre_upload_slide)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, pre_upload_slide, self.timeout)
         return xml is not None
 
     def is_meeting_running(self, meeting_id):
@@ -110,7 +111,7 @@ class BigBlueButton(object):
         query = urlencode((
             ('meetingID', meeting_id),
         ))
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         return xml_match(xml, match)
 
     def join_meeting_url(self, meeting_id, name, password, options=None):
@@ -172,7 +173,7 @@ class BigBlueButton(object):
             ('meetingID', meeting_id),
             ('password', password),
         ))
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         return xml is not None
 
     def meeting_info(self, meeting_id, password):
@@ -188,7 +189,7 @@ class BigBlueButton(object):
             ('meetingID', meeting_id),
             ('password', password),
         ))
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         if xml is not None:
             # Create dict of values for easy use in template
             users = []
@@ -229,7 +230,7 @@ class BigBlueButton(object):
             ('random', 'random'),
         ))
 
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         if xml is not None:
             # Create dict of values for easy use in template
             all_meetings = []
@@ -262,7 +263,7 @@ class BigBlueButton(object):
         query = urlencode((
             ('meetingID', meeting_id),
         ))
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         # ToDO implement more keys
         if xml is not None:
             # xml tags: recordings, returncode
@@ -292,7 +293,7 @@ class BigBlueButton(object):
             ('recordID', record_id),
             'publish', str(publish).lower()
         ))
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         return xml_match(xml, match)
 
     def delete_recordings(self, record_id, publish=False):
@@ -309,5 +310,5 @@ class BigBlueButton(object):
             ('recordID', record_id),
             'publish', str(publish).lower()
         ))
-        xml = get_xml(self.bbb_api_url, self.salt, call, query)
+        xml = get_xml(self.bbb_api_url, self.salt, call, query, self.timeout)
         return xml_match(xml, match)

@@ -43,7 +43,7 @@ def api_call(salt, query, call):
     return "%s&checksum=%s" % (query, checksum)
 
 
-def get_xml(bbb_api_url, salt, call, query, pre_upload_slide=None):
+def get_xml(bbb_api_url, salt, call, query, pre_upload_slide=None, timeout=None):
     """
     gets XML from the bigbluebutton ressource
 
@@ -60,9 +60,9 @@ def get_xml(bbb_api_url, salt, call, query, pre_upload_slide=None):
         xml = ("<?xml version='1.0' encoding='UTF-8'?> <modules> <module name='presentation'> "
                "<document url='%(pre_upload_slide)s'/> </module></modules>" % {"pre_upload_slide": pre_upload_slide})
         headers = {'Content-Type': 'application/xml'}
-        return parse(requests.post(url, data=xml, headers=headers).content)
+        return parse(requests.post(url, data=xml, headers=headers, timeout=timeout).content)
     else:
-        return parse(requests.get(url).content)
+        return parse(requests.get(url, timeout=timeout).content)
 
 
 def xml_match(xml, match):
